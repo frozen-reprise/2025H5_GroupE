@@ -1,0 +1,4 @@
+Rows: 196,513
+Range: 2010-01-01 00:00:00  ..  2021-03-18 00:00:00
+Nulls: demand=44, temp=299
+Forecast metrics: MAE=63.6 MW, RMSE=87.7 MW, MAPE=0.77%
