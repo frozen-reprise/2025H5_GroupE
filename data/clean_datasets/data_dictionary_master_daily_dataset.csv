@@ -1,0 +1,31 @@
+﻿Column,Type,Unit,Definition / Computation,Notes
+DATE,datetime (day),day,Calendar date of the aggregated record,Key for joins; 1 row per day
+demand_mw_sum,float,MW (≈ MWh if half-hourly sums),Sum of sub-daily demand within the day,Target for daily energy
+demand_mw_mean,float,MW,Average demand during the day,
+demand_mw_max,float,MW,Peak demand observed during the day,
+temp_c_mean,float,°C,Mean ambient temperature across the day,Source: merged temperature dataset
+forecast_mw_sum,float,MW,Sum of forecasted demand values within the day,Only if forecast dataset merged
+forecast_mw_mean,float,MW,Average forecast demand within the day,
+forecast_mw_max,float,MW,Max forecast demand within the day,
+fcst_error_mean,float,MW,Mean signed forecast error = forecast − demand,Positive → overestimate
+fcst_abs_error_sum,float,MW,Sum of absolute forecast errors across the day,Magnitude of forecast miss
+demand_mw_sum_lag14,float,MW,Daily total demand from 14 days prior,NaN for first 14 rows
+demand_mw_sum_lag28,float,MW,Daily total demand from 28 days prior,NaN for first 28 rows
+demand_mw_sum_roll7_mean,float,MW,7-day rolling mean of daily total demand,"Right-aligned, NaN for first days"
+demand_mw_sum_roll7_std,float,MW,7-day rolling std dev of daily total demand,
+demand_mw_sum_roll14_mean,float,MW,14-day rolling mean of daily total demand,
+demand_mw_sum_roll14_std,float,MW,14-day rolling std dev of daily total demand,
+temp_c_mean_lag1,float,°C,Mean daily temperature from 1 day prior,Captures short weather persistence
+temp_c_mean_lag7,float,°C,Mean daily temperature from 7 days prior,Weekly cycle
+forecast_mw_sum_lag1,float,MW,Forecast total from 1 day prior,
+forecast_mw_sum_lag7,float,MW,Forecast total from 7 days prior,
+year,int,–,Calendar year,Derived from DATE
+month,int (1–12),–,Calendar month,Derived from DATE
+day,int (1–31),–,Day of month,Derived from DATE
+dow,int (0–6),–,Day of week (Mon=0..Sun=6),
+is_weekend,int (0/1),–,Weekend flag (Sat/Sun=1),
+is_holiday,int (0/1),–,NSW public holiday flag,"Source: holidays AU, subdiv=NSW"
+"dow_sin, dow_cos",float,–,Cyclical encoding of day-of-week,Period = 7
+"month_sin, month_cos",float,–,Cyclical encoding of month,Period = 12
+"F_P7_sin1..3, F_P7_cos1..3",float,–,Weekly Fourier seasonal terms (k=1–3),Captures weekly seasonality
+"F_P365_sin1..3, F_P365_cos1..3",float,–,Annual Fourier seasonal terms (k=1–3),Captures yearly cycle
