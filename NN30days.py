@@ -66,6 +66,7 @@ def create_sequences(X, y, lookback=365, horizon=28):
 # Create sequences
 lookback = 365
 horizon = 28
+dropout = 0.75
 X_seq, y_seq = create_sequences(X, y, lookback, horizon)
 
 # Calculate split sizes
@@ -121,9 +122,9 @@ class FCModel(nn.Module):
 	def __init__(self, input_size):
 		super(FCModel, self).__init__()
 		self.fc1 = nn.Linear(input_size, 128)
-		self.dropout1 = nn.Dropout(0.2)
+		self.dropout1 = nn.Dropout(dropout)
 		self.fc2 = nn.Linear(128, 128)
-		self.dropout2 = nn.Dropout(0.2)
+		self.dropout2 = nn.Dropout(dropout)
 		self.fc3 = nn.Linear(128, horizon)
 
 	def forward(self, x):
@@ -144,9 +145,9 @@ class CNNModel(nn.Module):
 		self.conv2 = nn.Conv1d(64, 64, kernel_size=3, padding=1)
 		self.flatten_size = 64 * (seq_len // 2)
 		self.fc1 = nn.Linear(self.flatten_size, 64)
-		self.dropout1 = nn.Dropout(0.2)
+		self.dropout1 = nn.Dropout(dropout)
 		self.fc2 = nn.Linear(64, 64)
-		self.dropout2 = nn.Dropout(0.2)
+		self.dropout2 = nn.Dropout(dropout)
 		self.fc3 = nn.Linear(64, horizon)
 
 	def forward(self, x):
@@ -166,9 +167,9 @@ class CNNModel(nn.Module):
 class LSTMModel(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, output_size):
 		super(LSTMModel, self).__init__()
-		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2 if num_layers > 1 else 0)
+		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=dropout if num_layers > 1 else 0)
 		self.fc = nn.Linear(hidden_size, output_size)
-		self.dropout = nn.Dropout(0.2)
+		self.dropout = nn.Dropout(dropout)
 
 	def forward(self, x):
 		out, (h, c) = self.lstm(x)
@@ -197,7 +198,7 @@ optimizer_lstm = optim.Adam(model_lstm.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 # Training function with early stopping
-def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=5000, patience=500):
+def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=200, patience=20):
 	best_loss = float('inf')
 	patience_counter = 0
 	for epoch in range(epochs):
@@ -365,5 +366,27 @@ plt.title('Actual Demand vs Predictions and ±2 Std from Monday Starts (CNN Mode
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+# Plot c): Deterministic version of plot b
+plt.figure(figsize=(20, 10))
+plt.plot(test_dates, actuals, 'b-', label='Actual Demand')
+
+# For each Monday start, compute deterministic pred, plot line
+for k in plot_indices:
+	X_k = torch.tensor(X_test_scaled[k:k+1], dtype=torch.float32)
+	pred = predict(model_cnn, X_test_scaled[k:k+1], scaler_y, device)
+	pred = pred.flatten()
+	pred_dates = df.index[seq_start_idx + k : seq_start_idx + k + horizon]
+	plt.plot(pred_dates, pred, color='red', linestyle='-', label='Predicted' if k == plot_indices[0] else None)
+
+plt.xlabel('Date')
+plt.ylabel('Demand MW Mean')
+plt.title('Actual Demand vs Deterministic Predictions from Monday Starts (CNN Model)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
 
 a = input("Pausing to keep windows open")
