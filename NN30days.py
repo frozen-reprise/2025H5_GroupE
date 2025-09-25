@@ -162,7 +162,7 @@ class CNNModel(nn.Module):
 		x = self.fc3(x)
 		return x
 
-# Suggestion: Add LSTM model
+# Model 3: Add LSTM model
 class LSTMModel(nn.Module):
 	def __init__(self, input_size, hidden_size, num_layers, output_size):
 		super(LSTMModel, self).__init__()
@@ -184,19 +184,20 @@ input_channels_cnn = num_features
 seq_len_cnn = lookback
 model_cnn = CNNModel(input_channels_cnn, seq_len_cnn).to(device)
 
-# Optional LSTM
+# LSTM parameters
 hidden_size = 128
 num_layers = 2
 model_lstm = LSTMModel(num_features, hidden_size, num_layers, horizon).to(device)
 
 # Optimizers and criterion
-optimizer_fc = optim.Adam(model_fc.parameters(), lr=0.001)
-optimizer_cnn = optim.Adam(model_cnn.parameters(), lr=0.001)
-optimizer_lstm = optim.Adam(model_lstm.parameters(), lr=0.001)
+learning_rate = 1e-4
+optimizer_fc = optim.Adam(model_fc.parameters(), lr=learning_rate)
+optimizer_cnn = optim.Adam(model_cnn.parameters(), lr=learning_rate)
+optimizer_lstm = optim.Adam(model_lstm.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 # Training function with early stopping
-def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=200, patience=10):
+def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=5000, patience=500):
 	best_loss = float('inf')
 	patience_counter = 0
 	for epoch in range(epochs):
@@ -303,20 +304,29 @@ print("Future 28 days prediction (FC):", pred_future_fc)
 
 # New plots
 
-# Plot a): Mean and std of scaled residuals vs days ahead, for each model
+# Plot a): Mean and std of scaled residuals vs days ahead, for all models overlapped
 models = {'FC': (y_test_scaled - pred_fc_scaled), 'CNN': (y_test_scaled - pred_cnn_scaled), 'LSTM': (y_test_scaled - pred_lstm_scaled)}
-for name, res_scaled in models.items():
-	mean_res = np.mean(res_scaled, axis=0)
-	std_res = np.std(res_scaled, axis=0)
-	days_ahead = np.arange(1, horizon + 1)
-	plt.figure(figsize=(10, 6))
-	plt.plot(days_ahead, mean_res, 'b-', label='Mean Scaled Residual')
-	plt.plot(days_ahead, std_res, 'r-', label='Std Dev Scaled Residual')
-	plt.xlabel('Days Ahead')
-	plt.ylabel('Value')
-	plt.title(f'Mean and Std of Scaled Residuals vs Days Ahead ({name} Model)')
-	plt.legend()
-	plt.show()
+line_styles = {'FC': '-', 'CNN': '--', 'LSTM': ':'}  # Solid, dashed, dotted
+colors_mean = {'FC': 'blue', 'CNN': 'blue', 'LSTM': 'blue'}
+colors_std = {'FC': 'red', 'CNN': 'red', 'LSTM': 'red'}
+
+# Compute means and stds
+means = {name: np.mean(res_scaled, axis=0) for name, res_scaled in models.items()}
+stds = {name: np.std(res_scaled, axis=0) for name, res_scaled in models.items()}
+days_ahead = np.arange(1, horizon + 1)
+
+# Plot for Mean Scaled Residuals
+plt.figure(figsize=(12, 6))
+for name in models:
+	plt.plot(days_ahead, means[name], linestyle=line_styles[name], color=colors_mean[name], label=f'{name} Mean')
+	plt.plot(days_ahead, stds[name], linestyle=line_styles[name], color=colors_std[name], label=f'{name} Std Dev')
+plt.xlabel('Days Ahead')
+plt.ylabel('value')
+plt.title('Scaled Mean and StdDev Residuals vs Days Ahead (All Models)')
+plt.legend()
+plt.grid(True)
+plt.show()
+
 
 # Plot b): Time series with actuals and predictions + bounds starting from Mondays (using FC model)
 # Get test starting indices
@@ -333,27 +343,27 @@ plt.figure(figsize=(20, 10))
 plt.plot(test_dates, actuals, 'b-', label='Actual Demand')
 
 # Find Monday starts (dow==0)
-monday_indices = []
+plot_indices = []
 for k in range(test_size):
-	start_date = test_start_dates[k]
-	if df.loc[start_date, 'dow'] == 0:
-		monday_indices.append(k)
+	if k%30 == 0:
+		plot_indices.append(k)
 
 # For each Monday start, compute pred and std with uncertainty, plot lines
-for k in monday_indices:
+for k in plot_indices:
 	X_k = torch.tensor(X_test_scaled[k:k+1], dtype=torch.float32)
 	mean_inv, std_inv = predict_with_uncertainty(model_cnn, X_k, scaler_y, device)
 	mean_inv = mean_inv.flatten()
 	std_inv = std_inv.flatten()
 	pred_dates = df.index[seq_start_idx + k : seq_start_idx + k + horizon]
-	plt.plot(pred_dates, mean_inv, color='lightblue', linestyle='--', label='Predicted' if k == monday_indices[0] else None)
-	plt.plot(pred_dates, mean_inv + std_inv, color='lightblue', linestyle=':', label='+1 Std' if k == monday_indices[0] else None)
-	plt.plot(pred_dates, mean_inv - std_inv, color='lightblue', linestyle=':', label='-1 Std' if k == monday_indices[0] else None)
+	plt.fill_between(pred_dates, mean_inv - 3 * std_inv, mean_inv + 3 * std_inv, color='red', alpha=0.1, label='±3 Std' if k == plot_indices[0] else None)
+	plt.fill_between(pred_dates, mean_inv - 2 * std_inv, mean_inv + 2 * std_inv, color='red', alpha=0.3, label='±2 Std' if k == plot_indices[0] else None)
+	plt.plot(pred_dates, mean_inv, color='red', linestyle='-', label='Predicted Mean' if k == plot_indices[0] else None)
 
 plt.xlabel('Date')
 plt.ylabel('Demand MW Mean')
-plt.title('Actual Demand vs Predictions and ±1 Std from Monday Starts (FC Model)')
+plt.title('Actual Demand vs Predictions and ±2 Std from Monday Starts (CNN Model)')
 plt.legend()
+plt.grid(True)
 plt.show()
 
 a = input("Pausing to keep windows open")
