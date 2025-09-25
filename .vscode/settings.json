@@ -1,0 +1,33 @@
+{
+	"workbench.colorTheme": "Default Dark Modern",
+	"editor.renderWhitespace": "all",
+	"editor.detectIndentation": false,
+	"editor.insertSpaces": false,
+	"editor.wordWrap": "on",
+	"chat.editor.wordWrap": "on",
+	"workbench.startupEditor": "none",
+	"security.workspace.trust.untrustedFiles": "open",
+	"debug.inlineValues": false,
+	"python.languageServer": "Pylance",	
+	"python.analysis.typeCheckingMode": "standard",
+	"python.analysis.extraPaths": [
+		"${workspaceFolder}/data",
+		"${workspaceFolder}/src",
+		"${workspaceFolder}/data/clean_datasets",
+		"${workspaceFolder}",
+	],
+	//"python.analysis.inlayHints.variableTypes": true,
+
+	"workbench.colorCustomizations": {
+			"editor.findMatchBackground": "#FF0FFF",
+			"editor.findMatchHighlightBackground": "#FF0FFF" ,
+			"searchEditor.findMatchBackground": "#FF0FFF",
+			"minimap.findMatchHighlight": "#FF0FFF",
+			"editor.lineHighlightBorder":"#fcfc007e",
+			"editor.selectionHighlightBorder":"#ff0000",
+			"editor.wordHighlightBackground":"#ffff004d"
+
+
+	},
+	//"python.envFile": "${workspaceFolder}/.env",
+}
