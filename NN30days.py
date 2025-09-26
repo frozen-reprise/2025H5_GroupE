@@ -66,7 +66,7 @@ def create_sequences(X, y, lookback=365, horizon=28):
 # Create sequences
 lookback = 365
 horizon = 28
-dropout = 0.75
+dropout = 0.50
 X_seq, y_seq = create_sequences(X, y, lookback, horizon)
 
 # Calculate split sizes
@@ -198,7 +198,7 @@ optimizer_lstm = optim.Adam(model_lstm.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 # Training function with early stopping
-def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=200, patience=20):
+def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=5000, patience=50):
 	best_loss = float('inf')
 	patience_counter = 0
 	for epoch in range(epochs):
