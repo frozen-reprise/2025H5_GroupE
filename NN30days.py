@@ -12,6 +12,7 @@ from torch.utils.data import Dataset, DataLoader
 from statsmodels.tsa.stattools import adfuller
 from sklearn.model_selection import TimeSeriesSplit
 import random
+import visualtorch as vt
 
 # Set seed for reproducibility
 seed = 42
@@ -56,7 +57,7 @@ if adf_result[1] > 0.05:
 	print("Series is non-stationary.")
 
 # Function to create sequences
-def create_sequences(X, y, lookback=365*2, horizon=28):
+def create_sequences(X, y, lookback=365, horizon=28):
 	Xs, ys = [], []
 	for i in range(lookback, len(X) - horizon + 1):
 		Xs.append(X[i - lookback:i])
@@ -64,7 +65,7 @@ def create_sequences(X, y, lookback=365*2, horizon=28):
 	return np.array(Xs), np.array(ys)
 
 # Create sequences
-lookback = 365*2
+lookback = 365
 horizon = 28
 dropout = 0.50
 X_seq, y_seq = create_sequences(X, y, lookback, horizon)
@@ -149,16 +150,21 @@ class CNNModel(nn.Module):
 		self.fc2 = nn.Linear(64, 64)
 		self.dropout2 = nn.Dropout(dropout)
 		self.fc3 = nn.Linear(64, horizon)
+		self.ReLu = nn.ReLU()
 
 	def forward(self, x):
 		x = x.permute(0, 2, 1)  # (b, seq, feat) -> (b, feat, seq)
-		x = torch.relu(self.conv1(x))
+		x = (self.conv1(x))
+		x = self.ReLu(x)
 		x = self.pool(x)
-		x = torch.relu(self.conv2(x))
+		x = (self.conv2(x))
+		x = self.ReLu(x)
 		x = x.reshape(x.size(0), -1)  # Flatten, changed to reshape
-		x = torch.relu(self.fc1(x))
+		x = (self.fc1(x))
+		x = self.ReLu(x)
 		x = self.dropout1(x)
-		x = torch.relu(self.fc2(x))
+		x = (self.fc2(x))
+		x = self.ReLu(x)
 		x = self.dropout2(x)
 		x = self.fc3(x)
 		return x
@@ -183,7 +189,20 @@ model_fc = FCModel(input_size_fc).to(device)
 
 input_channels_cnn = num_features
 seq_len_cnn = lookback
-model_cnn = CNNModel(input_channels_cnn, seq_len_cnn).to(device)
+model_cnn = CNNModel(input_channels_cnn, seq_len_cnn)#.to(device)
+
+
+# Draws the model arquitechture
+input_shape = (1, 365, 46)
+img = vt.layered_view(model_cnn, input_shape=input_shape, legend=True, spacing=20, min_xy=20, min_z=20)
+plt.axis("off")
+plt.tight_layout()
+plt.imshow(img)
+plt.show()
+
+
+model_cnn = model_cnn.to(device)
+
 
 # LSTM parameters
 hidden_size = 128
@@ -388,5 +407,28 @@ plt.grid(True)
 plt.show()
 
 
+
+## Evaluate CNN model over validation data
+
+# Rolling 28days over the validation period
+print("")
+print("##################################################")
+print("##### Rolling 28 days over validation period #####")
+print("##################################################")
+print("")
+
+horizon = y_test.shape[1]
+
+mae_by_pt  = []
+bias_by_pt = []
+
+for k in range(horizon):
+	yt = y_test[:, k]
+	yp = pred_cnn[:, k]
+	mae_by_pt.append(mean_absolute_error(yt, yp))
+	bias_by_pt.append(np.mean(yp - yt))   # >0 overpredict, <0 underpredict
+
+for k, (mae, bias) in enumerate(zip(mae_by_pt, bias_by_pt), start=1):
+	print(f"Day {k:2d}: MAE={mae:.3f}, Bias={bias:.3f}")
 
 a = input("Pausing to keep windows open")

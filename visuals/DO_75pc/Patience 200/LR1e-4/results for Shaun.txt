@@ -1,0 +1,33 @@
+##################################################
+##### Rolling 28 days over validation period #####
+##################################################
+
+Day  1: MAE=385.287, Bias=16.784
+Day  2: MAE=383.349, Bias=15.757
+Day  3: MAE=378.985, Bias=6.455
+Day  4: MAE=373.190, Bias=-1.745
+Day  5: MAE=373.028, Bias=-4.844
+Day  6: MAE=370.788, Bias=-2.077
+Day  7: MAE=362.066, Bias=-0.406
+Day  8: MAE=358.643, Bias=2.302
+Day  9: MAE=360.155, Bias=-2.195
+Day 10: MAE=357.196, Bias=-12.950
+Day 11: MAE=357.804, Bias=-22.956
+Day 12: MAE=361.875, Bias=-26.748
+Day 13: MAE=359.298, Bias=-23.941
+Day 14: MAE=355.459, Bias=-19.557
+Day 15: MAE=358.845, Bias=-13.958
+Day 16: MAE=365.536, Bias=-12.780
+Day 17: MAE=364.844, Bias=-19.471
+Day 18: MAE=362.430, Bias=-24.664
+Day 19: MAE=367.108, Bias=-28.910
+Day 20: MAE=367.645, Bias=-23.509
+Day 21: MAE=369.373, Bias=-17.467
+Day 22: MAE=372.279, Bias=-10.802
+Day 23: MAE=379.991, Bias=-9.211
+Day 24: MAE=376.409, Bias=-17.362
+Day 25: MAE=374.953, Bias=-23.202
+Day 26: MAE=383.387, Bias=-23.204
+Day 27: MAE=383.797, Bias=-13.059
+Day 28: MAE=385.083, Bias=-1.686
+Pausing to keep windows open
