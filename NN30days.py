@@ -56,7 +56,7 @@ if adf_result[1] > 0.05:
 	print("Series is non-stationary.")
 
 # Function to create sequences
-def create_sequences(X, y, lookback=365, horizon=28):
+def create_sequences(X, y, lookback=365*2, horizon=28):
 	Xs, ys = [], []
 	for i in range(lookback, len(X) - horizon + 1):
 		Xs.append(X[i - lookback:i])
@@ -64,7 +64,7 @@ def create_sequences(X, y, lookback=365, horizon=28):
 	return np.array(Xs), np.array(ys)
 
 # Create sequences
-lookback = 365
+lookback = 365*2
 horizon = 28
 dropout = 0.50
 X_seq, y_seq = create_sequences(X, y, lookback, horizon)
@@ -198,7 +198,7 @@ optimizer_lstm = optim.Adam(model_lstm.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
 
 # Training function with early stopping
-def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=5000, patience=50):
+def train_model(model, train_loader, val_loader, optimizer, criterion, epochs=5000, patience=200):
 	best_loss = float('inf')
 	patience_counter = 0
 	for epoch in range(epochs):
