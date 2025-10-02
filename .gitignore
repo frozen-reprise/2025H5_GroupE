@@ -1,0 +1,7 @@
+# Don’t commit raw data, outputs, or venv
+data/raw/**
+outputs/**
+.venv/**
+.DS_Store
+!data/raw/.gitkeep
+!outputs/.gitkeep
