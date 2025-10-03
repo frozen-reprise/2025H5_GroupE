@@ -9,11 +9,11 @@ Complete the information below regarding your group.
 ## Group and project information
 
 ### Group members and zIDs
-- Member 1 (zID1) - Group leader
-- Member 2 (zID2) - role
-- Member 3 (zID3) - role
-- Member 4 (zID4) - role
-- Member 5 (zID5) - role
+- Shaun Stephenson (z5608969) - Group leader
+- Arturo Ronda (z5342043)
+- Kelly Xu(z5214516) 
+- Rahel Legesse(z5492537)
+
 
 ### Brief project description
 
@@ -30,3 +30,66 @@ The repository has the following folder structure:
 - minutes: minutes for each meeting (left not more than 24h after the corresponding meeting)
 - report: RMarkdown or Jupyter notebook report in progress
 - src: source code
+
+
+## Instruction on how to run 2025H5_groupE_EDA.ipynb
+1) Clone or download this repository.
+2) Download the data zip from the latest GitHub Release:
+     - Go to the repository?s "Releases" page.
+     - Download `data_raw.zip`.
+3) Unzip at the repository root so you end up with:
+     data/raw/
+       totaldemand_nsw.csv
+       temperature_nsw.csv
+       forecastdemand_nsw.csv
+       rn/  <-- Renewables Ninja hourly CSVs (humidity, rn_temp_c, irradiance,
+               precipitation, cloud, wind,)
+4) Run the EDA pipeline headlessly:
+     chmod +x run.sh        # first time only
+     ./run.sh 2025H5_groupE_EDA.ipynb
+5) Outputs will appear under:
+     outputs/
+       executed_2025H5_groupE_EDA.ipynb
+       Final_master_daily_with_env_v1.csv
+       
+
+### What ./run.sh Does
+------------------
+- Creates/uses a local Python virtual environment at ./.venv
+- Installs all dependencies listed in requirements.txt
+- Executes the specified notebook headlessly using Papermill:
+    ./run.sh <path/to/notebook.ipynb>
+  If no argument is provided, the script looks for a notebook in the repo root.
+
+Default usage for this project:
+  ./run.sh 2025H5_groupE_EDA.ipynb
+
+
+### Outputs
+-------
+- outputs/executed_2025H5_groupE_EDA.ipynb   (notebook with all cells executed)
+- outputs/Final_master_daily_with_env_v1.csv (daily modeling master table)
+- forecast_30min_clean.csv
+- temperature_30min_clean.csv
+- demand_30min_clean.csv
+
+Note: The repository?s .gitignore excludes outputs/ and data/raw/ from commits.
+
+
+### System Requirements
+-------------------
+- macOS or Linux with bash
+- Python 3.9+ available as `python3` (the script falls back to `python` if needed)
+- Internet access during first run (to install Python packages)
+
+
+### Overriding Data Paths (Optional)
+--------------------------------
+If your files are in different locations, you can override inputs at runtime:
+
+  DEMAND_CSV="/full/path/totaldemand_nsw.csv" \
+  TEMP_CSV="/full/path/temperature_nsw.csv" \
+  RN_DIR="/full/path/rn" \
+  ./run.sh 2025H5_groupE_EDA.ipynb
+
+The notebook will respect these environment variables.
