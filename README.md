@@ -17,7 +17,7 @@ Complete the information below regarding your group.
 
 ### Brief project description
 
-Describe your project in one paragraph.
+This project investigates forecasting methods for medium-term electricity demand in New South Wales to support the operation of the Snowy 2.0 pumped-hydro scheme. Using 2010–2021 data on demand, weather, and public holidays, we constructed a comprehensive dataset and conducted exploratory analysis to identify long-term declines, seasonal cycles, and non-linear temperature–demand effects. Two models were implemented and compared: a SARIMAX model incorporating seasonal and exogenous drivers, and a Convolutional Neural Network (CNN) designed to capture complex non-linear patterns. Evaluation across 1–28 day horizons showed that SARIMAX performs adequately for short horizons but deteriorates quickly beyond a week, whereas CNN forecasts remain more accurate and stable, with mean errors around 3–4% of peak demand. These findings highlight the value of advanced forecasting for Snowy 2.0’s scheduling decisions and Australia’s broader renewable energy transition.
 
 ## Repository structure
 
